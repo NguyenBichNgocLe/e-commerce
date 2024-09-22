@@ -3,6 +3,8 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
+import { CurrentUser } from 'src/utils/decorators/current-user.decorator';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -34,6 +36,11 @@ export class UsersController {
     } catch (error) {
       throw new HttpException(error.message, error.status || HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Get('me')
+  async getProfile(@CurrentUser() currentUser: User) {
+    return currentUser;
   }
 
   @UseGuards(JwtGuard)
