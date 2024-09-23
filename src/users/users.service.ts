@@ -13,6 +13,10 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  async updateHashedRefreshToken(userId: number, hashedRefreshToken: string) {
+    return await this.userRepository.update({ id:userId }, { hashedRefreshToken });
+  }
+
   async create(createUserDto: CreateUserDto) {
     const password = await encodePassword(createUserDto.password);
     const user = this.userRepository.create({ ...createUserDto, password });
@@ -40,7 +44,7 @@ export class UsersService {
   async findOne(id: number) {
     const user =  await this.userRepository.findOne({ 
       where: { id },
-      select: ['username', 'email']
+      select: ['username', 'email', 'hashedRefreshToken'],
     });
 
     if(!user) throw new NotFoundException(`User with ID ${id} not found`);
