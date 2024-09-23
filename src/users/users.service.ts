@@ -44,7 +44,7 @@ export class UsersService {
   async findOne(id: number) {
     const user =  await this.userRepository.findOne({ 
       where: { id },
-      select: ['username', 'email', 'hashedRefreshToken'],
+      select: ['id', 'username', 'email', 'hashedRefreshToken', 'role'],
     });
 
     if(!user) throw new NotFoundException(`User with ID ${id} not found`);
@@ -65,6 +65,11 @@ export class UsersService {
   }
 
   async remove(id: number) {
-    return `This action removes a #${id} user`;
+    const user = await this.userRepository.findOne({ where: { id } });
+    if(!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    } else {
+      await this.userRepository.delete(id);
+    }
   }
 }
