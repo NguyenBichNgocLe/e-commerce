@@ -8,23 +8,13 @@ import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    try {
-      await this.usersService.create(createUserDto);
-      return { message: 'User profile created successfully!' };
-    } catch (error) {
-      throw new HttpException('Error creating user profile', HttpStatus.BAD_REQUEST);
-    }
-  }
-
   @Get('all')
   async findAll() {
     return this.usersService.findAll();
   }
 
   @Get('single/:id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
   }
 
@@ -35,7 +25,7 @@ export class UsersController {
   }
 
   @UseGuards(JwtGuard)
-  @Patch(':id')
+  @Patch(':id') // maybe change this to not get the id from param but from the req
   async update(
     @Param('id') id: string, 
     @Body() updateUserDto: UpdateUserDto) {
