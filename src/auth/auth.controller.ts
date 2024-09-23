@@ -12,10 +12,16 @@ export class AuthController {
         private usersService: UsersService,
     ) {}
 
+    // @UseGuards(LocalAuthGuard)
+    // @Post('login')
+    // async login(@Request() req) {
+    //     return await this.authService.login(req.user);
+    // }
+
     @UseGuards(LocalAuthGuard)
     @Post('login')
     async login(@Request() req) {
-        return await this.authService.login(req.user);
+        return await this.authService.login(req.user.id);
     }
 
     @Post('register')
@@ -26,6 +32,6 @@ export class AuthController {
     @UseGuards(RefreshJwtGuard)
     @Post('refresh')
     async refreshToken(@Request() req) {
-        return this.authService.refreshToken(req.user);
+        return this.authService.refreshToken(req.user.id);
     }
 }
