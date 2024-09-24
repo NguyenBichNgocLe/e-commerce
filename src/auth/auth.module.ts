@@ -6,9 +6,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { LocalStrategy } from './strategies/local-strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { jwtConstants } from './constants';
 import { JwtStrategy } from './strategies/jwt-strategy';
 import { RefreshJwtStrategy } from './strategies/refreshToken-strategy';
+import jwtConfig from './config/jwt.config';
+import { ConfigModule } from '@nestjs/config';
+import refreshJwtConfig from './config/refresh-jwt.config';
 
 @Module({
   providers: [
@@ -22,10 +24,9 @@ import { RefreshJwtStrategy } from './strategies/refreshToken-strategy';
   controllers: [AuthController],
   imports: [
     TypeOrmModule.forFeature([User]),
-    JwtModule.register({
-      global: true,
-      secret: `${process.env.jwt_secret}`,
-      signOptions: { expiresIn: '60s' },
-    })]
+    JwtModule.registerAsync(jwtConfig.asProvider()),
+    ConfigModule.forFeature(jwtConfig),
+    ConfigModule.forFeature(refreshJwtConfig),
+  ]
 })
 export class AuthModule { }

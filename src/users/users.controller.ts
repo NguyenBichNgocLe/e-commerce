@@ -1,49 +1,57 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, HttpException, HttpStatus, UseGuards, Req, Request } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Role } from 'src/auth/enums/role.enum';
+import { RolesGuard } from 'src/auth/guards/roles/roles.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    try {
-      await this.usersService.create(createUserDto);
-      return { message: 'User profile created successfully!' };
-    } catch (error) {
-      throw new HttpException('Error creating user profile', HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @Get()
-  findAll() {
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtGuard)
+  @Get('all')
+  async findAll() {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @Roles(Role.USER, Role.ADMIN)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtGuard)
+  @Get('profile')
+  async getProfile(@Request() req) {
+    return this.usersService.findOne(req.user.id);
   }
 
+  @Roles(Role.USER, Role.ADMIN)
+  @UseGuards(RolesGuard)
   @UseGuards(JwtGuard)
-  @Patch(':id')
+  @Patch()
   async update(
-    @Param('id') id: string, 
+    @Req() req, 
     @Body() updateUserDto: UpdateUserDto) {
       try {
-        await this.usersService.update(+id, updateUserDto);
-        return this.usersService.findOne(+id);
+        await this.usersService.update(req.user.id, updateUserDto);
+        return this.usersService.findOne(req.user.id);
       } catch (error) {
         throw new HttpException(error.message, error.status || HttpStatus.BAD_REQUEST);
       }
     
   }
 
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id') id: number) {
+    try {
+      await this.usersService.remove(id);
+      return { message: `User with ID ${id} deleted successfully!` };
+    } catch(error) {
+      throw new HttpException(error.message, error.status || HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

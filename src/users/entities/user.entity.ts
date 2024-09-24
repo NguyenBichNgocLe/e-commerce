@@ -1,4 +1,4 @@
-import { Exclude } from "class-transformer";
+import { Role } from "src/auth/enums/role.enum";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -12,7 +12,16 @@ export class User {
     @Column({ unique: true })
     email: string;
 
-    @Exclude()
     @Column()
     password: string;
+
+    @Column({
+        type: "enum",
+        enum: Role,
+        default: Role.USER
+    })
+    role: Role;
+
+    @Column({ nullable: true })
+    hashedRefreshToken: string;
 }
