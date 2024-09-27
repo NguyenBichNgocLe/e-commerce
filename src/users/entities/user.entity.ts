@@ -1,5 +1,6 @@
 import { Role } from "src/auth/enums/role.enum";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Cart } from "src/cart/entities/cart.entity";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -14,6 +15,14 @@ export class User {
 
     @Column()
     password: string;
+
+    @OneToOne(() => Cart, (cart) => cart.user, {
+        eager: true,
+        onDelete: 'CASCADE',
+        cascade: true,
+    })
+    @JoinColumn()
+    cart: Cart;
 
     @Column({
         type: "enum",
