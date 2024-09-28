@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles/roles.guard';
@@ -12,11 +12,14 @@ export class CartController {
         private readonly cartService: CartService,
     ) {}
 
-    @Get('single/:userId')
-    async findOne(
-        @Param('userId') userId: number
+    @Roles(Role.USER)
+    @UseGuards(RolesGuard)
+    @UseGuards(JwtGuard)
+    @Get('myCart')
+    async findMyCart(
+        @Req() req,
     ) {
-        return this.cartService.findOne(userId);
+        return this.cartService.findMyCart(req.user.id);
     }
 
     @Get('all')
@@ -24,15 +27,35 @@ export class CartController {
         return this.cartService.findAll();
     }
 
-    // @Roles(Role.USER)
-    // @UseGuards(RolesGuard)
-    // @UseGuards(JwtGuard)
-    @Post('addItem/:userId')
+    @Roles(Role.USER)
+    @UseGuards(RolesGuard)
+    @UseGuards(JwtGuard)
+    @Post('addItem')
     async addItem(
-        //@Req() req,
-        @Param('userId') userId: number,
+        @Req() req,
         @Body() createItemDto: CreateItemDto,
     ) {
-        return this.cartService.addItem(userId, createItemDto);
+        return this.cartService.addItem(req.user.id, createItemDto);
+    }
+
+    @Roles(Role.USER)
+    @UseGuards(RolesGuard)
+    @UseGuards(JwtGuard)
+    @Delete('item/:productId')
+    async removeAnItem(
+        @Req() req,
+        @Param('productId') productId: string
+    ) {
+        return await this.cartService.removeAnItem(req.user.id, +productId);
+    }
+
+    @Roles(Role.USER)
+    @UseGuards(RolesGuard)
+    @UseGuards(JwtGuard)
+    @Delete('emptyCart')
+    async emptyCart(
+        @Req() req
+    ) {
+        return await this.cartService.emptyCart(req.user.id);
     }
 }

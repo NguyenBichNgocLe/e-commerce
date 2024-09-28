@@ -10,7 +10,9 @@ export class Item {
     // @Column()
     // name: string;
 
-    @ManyToOne(() => Product, (product) => product.items)
+    @ManyToOne(() => Product, (product) => product.items, {
+        eager: true,
+    })
     product: Product;
 
     // @Column("decimal", { precision: 10, scale: 2 })
@@ -19,8 +21,8 @@ export class Item {
     @Column()
     quantity: number;
 
-    // @Column("decimal", { precision: 10, scale: 2 })
-    // subtotal: number;
+    @Column("decimal", { precision: 10, scale: 2 })
+    subtotal: number;
 
     @ManyToOne(() => Cart, (cart) => cart.items)
     cart: Cart;
