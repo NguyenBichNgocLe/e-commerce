@@ -19,7 +19,8 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const password = await encodePassword(createUserDto.password);
-    const user = this.userRepository.create({ ...createUserDto, password });
+    // const user = this.userRepository.create({ ...createUserDto, password });
+    const user = this.userRepository.create({ ...createUserDto, password, cart: {items: [], total: 0} });
     await this.userRepository.save(user);
     delete user.password;
     return user;
@@ -43,8 +44,7 @@ export class UsersService {
 
   async findOne(id: number) {
     const user =  await this.userRepository.findOne({ 
-      where: { id },
-      select: ['id', 'username', 'email', 'hashedRefreshToken', 'role'],
+      where: { id }
     });
 
     if(!user) throw new NotFoundException(`User with ID ${id} not found`);

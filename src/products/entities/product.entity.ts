@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Item } from "src/cart/entities/item.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Product {
@@ -16,4 +17,9 @@ export class Product {
 
     @Column()
     category: string;
+
+    @OneToMany(() => Item, (item) => item.product, {
+        onDelete: 'CASCADE',
+    })
+    items: Item[];
 }
